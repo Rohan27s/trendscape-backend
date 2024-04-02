@@ -13,6 +13,10 @@ app.use(express.urlencoded({ extended: false }));
 // Routes
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
+app.get("/",(req,res)=>{
+    res.send("hey");
+});
+
 
 
 const PORT = process.env.PORT || 5000;
