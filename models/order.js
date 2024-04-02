@@ -16,7 +16,8 @@ const OrderSchema = new mongoose.Schema({
         id: String,
         name: String,
         price: Number,
-        quantity: Number
+        quantity: Number,
+        imageUrl: [String]
     }],
     cartTotal: Number
 });
