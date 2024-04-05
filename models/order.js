@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
 
-// Define a Mongoose schema based on the Zod schema
 const OrderSchema = new mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
     shippingDetails: {
         name: String,
         mobileNumber: String,
@@ -22,7 +25,6 @@ const OrderSchema = new mongoose.Schema({
     cartTotal: Number
 });
 
-// Create a Mongoose model based on the schema
 const Order = mongoose.model('Order', OrderSchema);
 
 module.exports = Order;
