@@ -25,11 +25,8 @@ const productSchema = new mongoose.Schema({
   sizes: [String],
   colors: [String],
   quantity: {
-    type: Map,
-    of: {
-      type: Map,
-      of: Number
-    }
+    type: Number,
+    required: true
   },
   images: [String] 
 });
