@@ -49,7 +49,7 @@ router.post('/create-order', verifyToken, async (req, res) => {
         });
 
         // Send Razorpay order ID to the client
-        res.json({ orderId: razorpayOrder.id });
+        res.json({ orderId: razorpayOrder.id,message:"Order is successfull",newOrder });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
