@@ -4,6 +4,8 @@ const connectDB = require('./config/db');
 const productRoutes = require('./routes/products');
 const orderRoutes = require('./routes/orders')
 const loginRoutes = require('./routes/login')
+const paymentRoutes = require('./routes/razorpay')
+
 
 const cors = require('cors');
 const app = express();
@@ -17,6 +19,8 @@ app.use(express.urlencoded({ extended: false }));
 // Routes
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/payment', paymentRoutes);
+
 app.use('/api',loginRoutes)
 app.get("/",(req,res)=>{
     res.send("hey");
