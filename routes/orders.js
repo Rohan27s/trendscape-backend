@@ -3,7 +3,7 @@ const router = express.Router();
 const Order = require('../models/order');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-
+const moment = require('moment');
 async function verifyToken(req, res, next) {
     const token = req.header('Authorization');
     if (!token) {
@@ -123,5 +123,43 @@ router.put('/:id', async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
+
+router.get('/revenue-and-orders', async (req, res) => {
+    console.log("object");
+    try {
+      // Get today's date
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+  
+      // Calculate the start of the current month
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  
+      // Get orders for today
+      const ordersToday = await Order.find({
+        createdAt: { $gte: today },
+      });
+  
+      // Get orders for the current month
+      const ordersThisMonth = await Order.find({
+        createdAt: { $gte: startOfMonth },
+      });
+  
+      // Calculate total revenue for today
+      const revenueToday = ordersToday.reduce(
+        (total, order) => total + order.cartTotal,
+        0
+      );
+  console.log(ordersThisMonth,ordersToday);
+      // Return the revenue and order statistics
+      res.json({
+        revenueToday,
+        ordersToday: ordersToday.length,
+        ordersThisMonth: ordersThisMonth.length,
+      });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+  
 
 module.exports = router;
