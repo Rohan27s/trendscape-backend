@@ -93,3 +93,54 @@
 // });
 
 // module.exports = router;
+const express = require('express');
+const instance = require('../index.js')
+const router = express.Router();
+const Razorpay = require('razorpay')
+const Payment = require('../models/payment.js')
+const crypto = require('crypto')
+router.post('/checkout', async (req, res) => {
+    const instance = new Razorpay({
+        key_id: process.env.RAZORPAY_API_KEY,
+        key_secret: process.env.RAZORPAY_APT_SECRET
+    })
+    const payment_capture = 1;
+
+    const options = {
+        amount: 50000,
+        currency: "INR",
+        payment_capture
+    }
+    console.log(instance, 'instance')
+    try {
+        const order = await instance.orders.create(options);
+        console.log(order);
+        res.json(order); // Sending back the order as JSON response
+    } catch (error) {
+        console.error("Error creating order:", error);
+        res.status(500).json({ error: "Failed to create order" });
+    }
+})
+router.post('/paymentVerification', async (req, res) => {
+    const {razorpay_order_id, razorpay_payment_id , razorpay_signature} = req.body;
+    const sha = crypto.createHmac("sha256",process.env.RAZORPAY_APT_SECRET)
+    sha.update(`${razorpay_order_id}|${razorpay_payment_id}`);
+    const digest = sha.digest("hex");
+    // const body = razorpay_order_id + "|" + razorpay_payment_id;
+    // const expectedSignature = crypto
+    // .createHmac("sha256",process.env.RAZORPAY_APT_SECRET)
+    // .update(body.toString())
+    // .digest("hex");
+    if(digest!==razorpay_signature){
+        return res.status(400).json({ msg: 'transaction is not legit'})
+    }
+    res.json({
+        msg:"success",
+        orderId:razorpay_order_id,
+        paymentId:razorpay_payment_id
+    })
+})
+
+
+module.exports = router;
+
