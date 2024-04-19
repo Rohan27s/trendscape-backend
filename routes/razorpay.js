@@ -99,19 +99,27 @@ const router = express.Router();
 const Razorpay = require('razorpay')
 const Payment = require('../models/payment.js')
 const crypto = require('crypto')
-router.post('/checkout', async (req, res) => {
-    const instance = new Razorpay({
+
+// Define a function to create a Razorpay instance
+const createRazorpayInstance = () => {
+    return new Razorpay({
         key_id: process.env.RAZORPAY_API_KEY,
         key_secret: process.env.RAZORPAY_APT_SECRET
-    })
+    });
+};
+
+router.post('/checkout', async (req, res) => {
+    const instance = createRazorpayInstance();
     const payment_capture = 1;
 
+    const { amount } = req.body; // Extract amount from request body
+
     const options = {
-        amount: 50000,
+        amount: amount * 100, // Convert amount to smallest currency unit (e.g., paisa)
         currency: "INR",
         payment_capture
-    }
-    console.log(instance, 'instance')
+    };
+
     try {
         const order = await instance.orders.create(options);
         console.log(order);
@@ -120,27 +128,25 @@ router.post('/checkout', async (req, res) => {
         console.error("Error creating order:", error);
         res.status(500).json({ error: "Failed to create order" });
     }
-})
+});
+
 router.post('/paymentVerification', async (req, res) => {
-    const {razorpay_order_id, razorpay_payment_id , razorpay_signature} = req.body;
-    const sha = crypto.createHmac("sha256",process.env.RAZORPAY_APT_SECRET)
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    const sha = crypto.createHmac("sha256", process.env.RAZORPAY_APT_SECRET);
     sha.update(`${razorpay_order_id}|${razorpay_payment_id}`);
     const digest = sha.digest("hex");
-    // const body = razorpay_order_id + "|" + razorpay_payment_id;
-    // const expectedSignature = crypto
-    // .createHmac("sha256",process.env.RAZORPAY_APT_SECRET)
-    // .update(body.toString())
-    // .digest("hex");
-    if(digest!==razorpay_signature){
-        return res.status(400).json({ msg: 'transaction is not legit'})
-    }
-    res.json({
-        msg:"success",
-        orderId:razorpay_order_id,
-        paymentId:razorpay_payment_id
-    })
-})
 
+    if (digest !== razorpay_signature) {
+        return res.status(400).json({ msg: 'Transaction is not legit' });
+    }
+
+    res.json({
+        msg: "success",
+        orderId: razorpay_order_id,
+        paymentId: razorpay_payment_id
+    });
+});
 
 module.exports = router;
+
 
