@@ -1,29 +1,48 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Order = require('../models/order');
+const Order = require("../models/order");
 
-router.get('/', async (req, res) => {
-    console.log("first")
-    try {
-        const today = new Date();
-      today.setHours(0, 0, 0, 0);
-  
-      // Calculate the start of the current month
-      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-        console.log("first")
-      // Get orders for today
-      const ordersToday = await Order.find({
-        createdAt: { $gte: today },
-      });
+router.get("/", async (req, res) => {
+//   console.log("first");
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-      const ordersThisMonth = await Order.find({
-                createdAt: { $gte: startOfMonth },
-              });
-        console.log("first",ordersToday)
-        res.json({ordersToday,ordersThisMonth})
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
+    // Calculate the start of the current month
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    // console.log("first");
+    // Get orders for today
+    const ordersToday = await Order.find({
+      createdAt: { $gte: today },
+    });
+
+    const ordersThisMonth = await Order.find({
+      createdAt: { $gte: startOfMonth },
+    });
+
+    const revenueToday = ordersToday.reduce(
+      (total, order) => total + order.cartTotal,
+      0
+    );
+    // const revenueForMonth = async (startOfMonth) => {
+    //     // Find orders for the specified month
+    //     const ordersForMonth = await Order.find({
+    //       createdAt: { $gte: startOfMonth },
+    //     });
+        
+        // Calculate total revenue for the month
+        const totalRevenue = ordersThisMonth.reduce((total, order) => {
+          return total + order.cartTotal;
+        }, 0);
+        console.log(totalRevenue,'total')
+        // return totalRevenue;
+    //   };
+    //   revenueForMonth()
+    // console.log("first", ordersToday);
+    res.json({ ordersToday, ordersThisMonth, revenueToday,totalRevenue });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 module.exports = router;
@@ -34,7 +53,7 @@ module.exports = router;
 //       // Get today's date
 //       const today = new Date();
 //       today.setHours(0, 0, 0, 0);
-  
+
 //       // Calculate the start of the current month
 //       const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 //         console.log("first")
@@ -42,12 +61,12 @@ module.exports = router;
 // //       const ordersToday = await Order.find({
 // //         createdAt: { $gte: today },
 // //       });
-  
+
 // //       // Get orders for the current month
 // //       const ordersThisMonth = await Order.find({
 // //         createdAt: { $gte: startOfMonth },
 // //       });
-  
+
 // //       // Calculate total revenue for today
 // //       const revenueToday = ordersToday.reduce(
 // //         (total, order) => total + order.cartTotal,
