@@ -38,8 +38,10 @@ router.get("/", async (req, res) => {
         // return totalRevenue;
     //   };
     //   revenueForMonth()
+        const ordersT = ordersToday.length
+        const ordersM = ordersThisMonth.length
     // console.log("first", ordersToday);
-    res.json({ ordersToday, ordersThisMonth, revenueToday,totalRevenue });
+    res.json({ ordersT, ordersM, revenueToday,totalRevenue });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
