@@ -1,3 +1,4 @@
+const Razorpay = require('razorpay')
 // index.js
 const express = require('express');
 const connectDB = require('./config/db');
@@ -26,8 +27,13 @@ app.get("/",(req,res)=>{
     res.send("hey");
 });
 
+const instance = new Razorpay({
+    key_id:process.env.RAZORPAY_API_KEY,
+    key_secret:process.env.RAZORPAY_APT_SECRET
+})
 
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3700;
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// module.exports = instance;
